@@ -18,7 +18,8 @@ The manual workflow runs in the public repository and checks out the private run
 - redirects, HTTP status and selected headers;
 - DNS records and TLS certificate metadata;
 - `robots.txt`, including configured crawler policies;
-- `security.txt`, `ads.txt`, `app-ads.txt` and standard discovery endpoints;
+- parsed public security contacts from `security.txt` and advertising declarations from
+  `ads.txt` and `app-ads.txt`;
 - canonical URLs, feeds, sitemaps, manifests and structured metadata;
 - scripts, cookies and third-party domains;
 - evidence-backed signals for publishing platforms, paywalls, analytics, consent and advertising technology;
@@ -76,6 +77,10 @@ private runtime, and sends the summary plus HTML report to the requester's Slack
 The receiver stores no targets or reports, detailed Worker logging is disabled, and the public
 workflow publishes no artifacts. Slack, GitHub and encryption credentials are stored only in their
 respective secret stores. See [Slack setup](docs/SLACK_SETUP.md).
+
+The private HTML report is Norwegian and answer-first: it explains the most important findings,
+confidence and limitations before placing DNS, TLS, endpoint details and normalized data in a
+collapsed technical appendix.
 
 ## Privacy and source handling
 

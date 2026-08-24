@@ -14,6 +14,7 @@ from .models import MetadataObservation, Observation
 from .network import inspect_dns, inspect_tls
 from .robots import extract_sitemaps, inspect_robots
 from .safety import UnsafeTargetError, normalize_url, validate_public_url
+from .standards import parse_ads_txt, parse_security_txt
 from .util import host_from_url, registrable_domain
 
 STANDARD_ENDPOINTS = {
@@ -150,6 +151,12 @@ def scan_website(
                 observation.metadata.sitemaps = sorted(
                     set(observation.metadata.sitemaps) | set(extract_sitemaps(raw_robots))
                 )
+            elif name == "security_txt" and result.record.status_code == 200:
+                observation.security_txt = parse_security_txt(result.body)
+            elif name == "ads_txt" and result.record.status_code == 200:
+                observation.ads_txt = parse_ads_txt(result.body)
+            elif name == "app_ads_txt" and result.record.status_code == 200:
+                observation.app_ads_txt = parse_ads_txt(result.body)
 
     if observation.host:
         dns_records, dns_errors = inspect_dns(observation.host)

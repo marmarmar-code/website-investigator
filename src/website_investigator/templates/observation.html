@@ -1,173 +1,204 @@
 <!doctype html>
-<html lang="en">
+<html lang="no">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{ display_name or observation.host or 'Website Investigator' }}</title>
   <style>
-    :root { color-scheme: light; --bg:#f4f5f7; --panel:#fff; --ink:#17191c; --muted:#667085; --line:#dfe3e8; --accent:#274690; --high:#8a1c1c; --med:#8a5a00; --ok:#12643a; }
+    :root {
+      color-scheme: light;
+      --bg:#f3f5f7; --panel:#fff; --ink:#17212b; --muted:#5e6b78; --line:#dce2e7;
+      --navy:#17324d; --blue:#2869a8; --green:#17623b; --green-soft:#eaf6ef;
+      --amber:#805b00; --amber-soft:#fff6dd; --red:#8b2b2b;
+    }
     * { box-sizing:border-box; }
-    body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.5 ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
-    main { max-width:1180px; margin:0 auto; padding:32px 20px 80px; }
-    header { display:flex; justify-content:space-between; align-items:flex-start; gap:24px; margin-bottom:24px; }
-    h1 { font-size:32px; line-height:1.15; margin:0 0 8px; }
-    h2 { font-size:20px; margin:0 0 14px; }
-    h3 { font-size:16px; margin:0 0 8px; }
+    body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.55 ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    main { max-width:1120px; margin:0 auto; padding:36px 20px 80px; }
+    header { display:flex; justify-content:space-between; align-items:flex-start; gap:28px; margin-bottom:22px; }
+    h1 { font-size:clamp(30px,5vw,44px); line-height:1.08; margin:4px 0 10px; letter-spacing:-.025em; }
+    h2 { font-size:23px; line-height:1.2; margin:0 0 8px; }
+    h3 { font-size:17px; line-height:1.3; margin:0 0 7px; }
     p { margin:0 0 10px; }
-    a { color:var(--accent); overflow-wrap:anywhere; }
+    a { color:var(--blue); overflow-wrap:anywhere; }
+    .eyebrow { color:var(--blue); font-size:13px; font-weight:750; letter-spacing:.08em; text-transform:uppercase; }
     .muted { color:var(--muted); }
-    .pill { display:inline-block; border:1px solid var(--line); border-radius:999px; padding:4px 9px; font-size:12px; background:#fff; }
-    .status-success { color:var(--ok); border-color:#a8d8bd; }
-    .status-partial { color:var(--med); border-color:#e6cf9a; }
-    .status-failed { color:var(--high); border-color:#e5b2b2; }
+    .small { font-size:13px; }
+    .badges { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:7px; }
+    .pill { display:inline-flex; align-items:center; border:1px solid var(--line); border-radius:999px; padding:5px 10px; font-size:12px; font-weight:650; background:#fff; white-space:nowrap; }
+    .status-success { color:var(--green); border-color:#a9d8bd; background:var(--green-soft); }
+    .status-partial { color:var(--amber); border-color:#e4ca7e; background:var(--amber-soft); }
+    .status-failed { color:var(--red); border-color:#e3b3b3; background:#fff1f1; }
     .grid { display:grid; grid-template-columns:repeat(12,1fr); gap:16px; margin-bottom:16px; }
-    .panel { grid-column:span 12; background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px; box-shadow:0 1px 2px rgba(0,0,0,.03); }
+    .panel { grid-column:span 12; background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:21px; box-shadow:0 1px 2px rgba(23,50,77,.04); }
+    .hero { background:var(--navy); color:#fff; border-color:var(--navy); padding:26px; }
+    .hero .muted { color:#c8d6e4; }
+    .hero h2 { font-size:25px; }
     .half { grid-column:span 6; }
     .third { grid-column:span 4; }
-    .metric { font-size:24px; font-weight:700; }
+    .metric { font-size:28px; line-height:1.1; font-weight:780; color:var(--navy); }
+    .summary-list { margin:15px 0 0; padding:0; list-style:none; display:grid; gap:10px; }
+    .summary-list li { display:grid; grid-template-columns:24px 1fr; gap:8px; align-items:start; }
+    .summary-list li::before { content:"✓"; display:grid; place-items:center; width:20px; height:20px; border-radius:50%; background:#3c7db9; color:#fff; font-size:12px; font-weight:800; margin-top:2px; }
+    .section-intro { margin-bottom:16px; max-width:760px; }
+    .finding { border:1px solid var(--line); padding:15px 16px; margin:11px 0; background:#fbfcfd; border-radius:10px; }
+    .finding-head { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+    .meaning { margin-top:8px; }
+    .caveat { margin-top:9px; padding:9px 11px; border-radius:8px; background:var(--amber-soft); color:#5f4709; font-size:14px; }
+    .category { margin-top:20px; }
+    .category:first-of-type { margin-top:0; }
+    .check { display:grid; grid-template-columns:minmax(165px,.75fr) minmax(110px,.45fr) 1.8fr; gap:14px; padding:12px 0; border-bottom:1px solid var(--line); }
+    .check:last-child { border-bottom:0; }
+    .state { font-weight:700; color:var(--navy); }
+    .event { border-left:4px solid var(--line); padding:11px 13px; margin:9px 0; background:#fafbfc; border-radius:6px; }
+    .event.high { border-left-color:var(--red); }
+    .event.medium { border-left-color:var(--amber); }
     table { width:100%; border-collapse:collapse; }
-    th,td { padding:9px 8px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }
+    th,td { padding:10px 8px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }
     th { color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.04em; }
-    code { font:12px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace; background:#f2f4f7; padding:2px 5px; border-radius:4px; overflow-wrap:anywhere; }
-    pre { white-space:pre-wrap; overflow-wrap:anywhere; background:#111827; color:#e5e7eb; padding:16px; border-radius:8px; max-height:600px; overflow:auto; font-size:12px; }
-    details { border-top:1px solid var(--line); padding-top:10px; margin-top:10px; }
-    summary { cursor:pointer; font-weight:600; }
-    .finding { border-left:4px solid var(--line); padding:12px 14px; margin:10px 0; background:#fafbfc; border-radius:6px; }
-    .finding.strong { border-left-color:var(--ok); }
-    .finding.likely { border-left-color:var(--med); }
-    .event { border-left:4px solid var(--line); padding:10px 12px; margin:8px 0; background:#fafbfc; }
-    .event.high { border-left-color:var(--high); }
-    .event.medium { border-left-color:var(--med); }
-    ul.compact { margin:6px 0 0; padding-left:20px; }
+    code { font:12px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace; background:#edf0f3; padding:2px 5px; border-radius:4px; overflow-wrap:anywhere; }
+    pre { white-space:pre-wrap; overflow-wrap:anywhere; background:#101820; color:#e5edf4; padding:16px; border-radius:8px; max-height:600px; overflow:auto; font-size:12px; }
+    details { border-top:1px solid var(--line); padding-top:11px; margin-top:11px; }
+    summary { cursor:pointer; font-weight:700; color:var(--navy); }
+    ul.compact { margin:7px 0 0; padding-left:20px; }
     .wrap { overflow-wrap:anywhere; }
-    @media (max-width:800px) { .half,.third { grid-column:span 12; } header { display:block; } }
+    .tech-appendix > summary { font-size:18px; }
+    footer { color:var(--muted); font-size:13px; margin-top:24px; }
+    @media (max-width:800px) {
+      .half,.third { grid-column:span 12; }
+      header { display:block; }
+      .badges { justify-content:flex-start; margin-top:14px; }
+      .check { grid-template-columns:1fr; gap:3px; }
+      .finding-head { display:block; }
+      .finding-head .pill { margin-top:6px; }
+    }
   </style>
 </head>
 <body>
 <main>
   <header>
     <div>
-      <p class="muted">Website Investigator dossier</p>
+      <p class="eyebrow">Website Investigator · privat rapport</p>
       <h1>{{ display_name or observation.host or observation.requested_url }}</h1>
       <p><a href="{{ observation.final_url or observation.requested_url }}">{{ observation.final_url or observation.requested_url }}</a></p>
+      <p class="muted small">Undersøkt {{ completed_label }}</p>
     </div>
-    <div>
-      <span class="pill status-{{ observation.status }}">{{ observation.status }}</span>
-      <span class="pill">{{ observation.scan_mode }} scan</span>
-      <span class="pill">method {{ observation.methodology_version }}</span>
+    <div class="badges">
+      <span class="pill status-{{ observation.status }}">{{ status_label }}</span>
+      <span class="pill">{{ scan_label }}</span>
     </div>
   </header>
 
   <section class="grid">
-    <div class="panel third"><p class="muted">Findings</p><div class="metric">{{ observation.findings|length }}</div></div>
-    <div class="panel third"><p class="muted">Third-party domains</p><div class="metric">{{ observation.third_party_domains|length }}</div></div>
-    <div class="panel third"><p class="muted">Completed</p><div>{{ observation.completed_at or '—' }}</div></div>
+    <div class="panel hero">
+      <p class="eyebrow" style="color:#9dc9ef">Kort fortalt</p>
+      {% if important_findings %}
+        <h2>Vi fant {{ observation.findings|length }} navngitte teknologisignaler.</h2>
+        <p class="muted">Dette er de tydeligste offentlige sporene på den undersøkte siden:</p>
+        <ul class="summary-list">
+        {% for finding in important_findings %}
+          <li><span><strong>{{ finding.name }}</strong> · {{ confidence_labels[finding.confidence] }}{% if finding.interpretation %}<br><span class="muted">{{ finding.interpretation }}</span>{% endif %}</span></li>
+        {% endfor %}
+        </ul>
+      {% else %}
+        <h2>Ingen navngitte teknologier ble identifisert med tilstrekkelig sikkerhet.</h2>
+        <p class="muted">Det betyr ikke at nettstedet mangler slike løsninger; bare at de ikke ga tydelige offentlige spor i denne undersøkelsen.</p>
+      {% endif %}
+    </div>
+  </section>
+
+  <section class="grid">
+    <div class="panel third"><p class="muted">Teknologifunn</p><div class="metric">{{ observation.findings|length }}</div></div>
+    <div class="panel third"><p class="muted">Eksterne tjenestedomener</p><div class="metric">{{ observation.third_party_domains|length }}</div></div>
+    <div class="panel third"><p class="muted">Informasjonskapsler</p><div class="metric">{{ observation.cookie_names|length }}</div></div>
   </section>
 
   {% if events %}
   <section class="grid"><div class="panel">
-    <h2>Changes first observed</h2>
-    <p class="muted">Observation time is not proof of the exact change time.</p>
-    {% for event in events %}
-      <div class="event {{ event.severity }}">
-        <strong>{{ event.summary }}</strong>
-        <div class="muted">{{ event.category }} · {{ event.severity }} · {{ event.event_type }}</div>
-      </div>
-    {% endfor %}
+    <p class="eyebrow">Endringer</p>
+    <h2>Nye observasjoner siden forrige undersøkelse</h2>
+    <p class="muted section-intro">Tidspunktet viser når endringen først ble observert, ikke nødvendigvis når den faktisk skjedde.</p>
+    {% for event in events %}<div class="event {{ event.severity }}"><strong>{{ event.summary }}</strong><div class="muted small">{{ event.category }} · {{ event.severity }}</div></div>{% endfor %}
   </div></section>
   {% endif %}
 
-  <section class="grid">
-    <div class="panel">
-      <h2>Detected technology</h2>
-      {% if observation.findings %}
-        {% for category, findings in observation.findings|groupby('category') %}
-          <h3>{{ category|replace('_', ' ')|title }}</h3>
-          {% for finding in findings %}
-            <article class="finding {{ finding.confidence }}">
-              <div><strong>{{ finding.name }}</strong> <span class="pill">{{ finding.confidence }} · {{ finding.score }}</span></div>
-              {% if finding.interpretation %}<p>{{ finding.interpretation }}</p>{% endif %}
-              {% if finding.identifiers %}<p><strong>Public identifiers:</strong> {{ finding.identifiers|join(', ') }}</p>{% endif %}
-              <details><summary>Evidence ({{ finding.evidence|length }})</summary>
-                <ul class="compact">
-                {% for evidence in finding.evidence %}
-                  <li><code>{{ evidence.kind }}</code> {{ evidence.source }} — <code>{{ evidence.value }}</code></li>
-                {% endfor %}
-                </ul>
-                {% if finding.false_positive_note %}<p class="muted"><strong>Limitation:</strong> {{ finding.false_positive_note }}</p>{% endif %}
-              </details>
+  <section class="grid"><div class="panel">
+    <p class="eyebrow">Journalistisk oversikt</p>
+    <h2>Hva nettstedet ser ut til å bruke</h2>
+    <p class="muted section-intro">Funnene bygger på offentlige spor. Sikkerhetsnivået beskriver hvor tydelige sporene er—ikke om leverandøren eier eller styrer nettstedet.</p>
+    {% if finding_sections %}
+      {% for section in finding_sections %}
+        <div class="category">
+          <h3>{{ section.label }}</h3><p class="muted small">{{ section.description }}</p>
+          {% for finding in section.findings %}
+            <article class="finding">
+              <div class="finding-head"><strong>{{ finding.name }}</strong><span class="pill">{{ confidence_labels[finding.confidence] }}</span></div>
+              {% if finding.interpretation %}<p class="meaning">{{ finding.interpretation }}</p>{% endif %}
+              {% if finding.identifiers %}<p><strong>Offentlige ID-er:</strong> <code>{{ finding.identifiers|join(', ') }}</code></p>{% endif %}
+              {% if finding.false_positive_note %}<p class="caveat"><strong>Viktig forbehold:</strong> {{ finding.false_positive_note }}</p>{% endif %}
+              <details><summary>Se dokumentasjonen ({{ finding.evidence|length }} spor)</summary><ul class="compact">{% for evidence in finding.evidence %}<li><code>{{ evidence.kind }}</code> {{ evidence.source }} — <code>{{ evidence.value }}</code></li>{% endfor %}</ul></details>
             </article>
           {% endfor %}
-        {% endfor %}
-      {% else %}<p class="muted">No configured technology signal crossed the reporting threshold.</p>{% endif %}
-    </div>
-  </section>
-
-  <section class="grid">
-    <div class="panel half">
-      <h2>Crawler policy</h2>
-      {% if observation.robots_policies %}
-      <table><thead><tr><th>User agent</th><th>Root</th><th>Explicit</th></tr></thead><tbody>
-      {% for policy in observation.robots_policies %}
-        <tr><td>{{ policy.user_agent }}</td><td>{% if policy.allowed_at_root is sameas true %}Allowed{% elif policy.allowed_at_root is sameas false %}Blocked{% else %}Unknown{% endif %}</td><td>{{ 'Yes' if policy.explicit_group else 'No' }}</td></tr>
+        </div>
       {% endfor %}
-      </tbody></table>
-      {% else %}<p class="muted">No usable robots.txt policy was observed.</p>{% endif %}
-    </div>
-    <div class="panel half">
-      <h2>Publishing metadata</h2>
-      <table><tbody>
-        <tr><th>Title</th><td>{{ observation.metadata.title or '—' }}</td></tr>
-        <tr><th>Generator</th><td>{{ observation.metadata.generator or '—' }}</td></tr>
-        <tr><th>Canonical</th><td class="wrap">{{ observation.metadata.canonical_url or '—' }}</td></tr>
-        <tr><th>Feeds</th><td>{{ observation.metadata.feeds|length }}</td></tr>
-        <tr><th>Sitemaps</th><td>{{ observation.metadata.sitemaps|length }}</td></tr>
-        <tr><th>Manifest</th><td class="wrap">{{ observation.metadata.manifest or '—' }}</td></tr>
-      </tbody></table>
-    </div>
-  </section>
+    {% else %}<p class="muted">Ingen navngitte teknologisignaler passerte rapporteringsterskelen.</p>{% endif %}
+  </div></section>
 
   <section class="grid">
     <div class="panel half">
-      <h2>DNS</h2>
-      {% if observation.dns %}
-        {% for kind, values in observation.dns.items() %}
-          <h3>{{ kind }}</h3><ul class="compact">{% for value in values %}<li><code>{{ value }}</code></li>{% endfor %}</ul>
-        {% endfor %}
-      {% else %}<p class="muted">No DNS records stored.</p>{% endif %}
-    </div>
-    <div class="panel half">
-      <h2>TLS</h2>
+      <p class="eyebrow">Identitet og publisering</p><h2>Det nettstedet oppgir om seg selv</h2>
+      {% if organizations %}
+        {% for organization in organizations %}<div class="finding"><strong>{{ organization.name }}</strong>{% if organization.url %}<p><a href="{{ organization.url }}">{{ organization.url }}</a></p>{% endif %}{% if organization.same_as %}<p class="small"><strong>Tilknyttede profiler:</strong> {{ organization.same_as|join(', ') }}</p>{% endif %}</div>{% endfor %}
+        <p class="muted small">Opplysningene kommer fra nettstedets egne strukturerte data og er ikke uavhengig bekreftet.</p>
+      {% else %}<p class="muted">Ingen tydelig organisasjonsprofil ble funnet i nettstedets strukturerte data.</p>{% endif %}
       <table><tbody>
-        <tr><th>Available</th><td>{{ observation.tls.available }}</td></tr>
-        <tr><th>Issuer</th><td>{{ observation.tls.issuer or '—' }}</td></tr>
-        <tr><th>Valid until</th><td>{{ observation.tls.not_after or '—' }}</td></tr>
-        <tr><th>SAN entries</th><td>{{ observation.tls.san|length }}</td></tr>
-        <tr><th>Fingerprint</th><td class="wrap"><code>{{ observation.tls.sha256_fingerprint or '—' }}</code></td></tr>
+        <tr><th>Nettsidetittel</th><td>{{ observation.metadata.title or 'Ikke oppgitt' }}</td></tr>
+        <tr><th>Publiseringsgenerator</th><td>{{ observation.metadata.generator or 'Ikke oppgitt' }}</td></tr>
+        <tr><th>RSS/Atom-kilder</th><td>{{ observation.metadata.feeds|length }}</td></tr>
+        <tr><th>Nettstedskart</th><td>{{ observation.metadata.sitemaps|length }}</td></tr>
       </tbody></table>
     </div>
+
+    <div class="panel half">
+      <p class="eyebrow">Annonser og kontakt</p><h2>Offentlige standardfiler</h2>
+      {% if ads_summary.available %}
+        <p><strong>ads.txt:</strong> {{ ads_summary.entries }} {{ 'oppføring' if ads_summary.entries == 1 else 'oppføringer' }} fra {{ ads_summary.sellers }} {{ 'selgerdomene' if ads_summary.sellers == 1 else 'selgerdomener' }}.</p>
+        <ul class="compact"><li>{{ ads_summary.direct }} oppført som direkte samarbeid</li><li>{{ ads_summary.reseller }} oppført som videresalg</li></ul>
+        {% if ads_summary.sellers_ranked %}<details><summary>Se selgerdomenene</summary><table><thead><tr><th>Domene</th><th>Direkte</th><th>Videresalg</th></tr></thead><tbody>{% for seller in ads_summary.sellers_ranked %}<tr><td><code>{{ seller.domain }}</code></td><td>{{ seller.direct }}</td><td>{{ seller.reseller }}</td></tr>{% endfor %}</tbody></table></details>{% endif %}
+        <p class="muted small">ads.txt viser hvem nettstedet tillater å selge annonseplassen. Det beviser ikke at alle oppføringene er aktive.</p>
+      {% else %}<p class="muted">Ingen tilgjengelig ads.txt-fil ble observert.</p>{% endif %}
+      <hr style="border:0;border-top:1px solid var(--line);margin:18px 0">
+      {% if observation.security_txt.available %}
+        <p><strong>security.txt:</strong> {{ observation.security_txt.contacts|length }} sikkerhetskontakt(er) oppgitt.</p>
+        {% if observation.security_txt.contacts %}<ul class="compact">{% for contact in observation.security_txt.contacts %}<li class="wrap"><code>{{ contact }}</code></li>{% endfor %}</ul>{% endif %}
+        {% if observation.security_txt.policy %}<p class="small"><strong>Retningslinjer:</strong> {{ observation.security_txt.policy|join(', ') }}</p>{% endif %}
+      {% else %}<p class="muted">Ingen tilgjengelig security.txt-fil ble observert.</p>{% endif %}
+    </div>
   </section>
+
+  <section class="grid"><div class="panel">
+    <p class="eyebrow">Tekniske tegn, forklart</p><h2>Tre enkle kontroller</h2>
+    {% for check in health_checks %}<div class="check"><strong>{{ check.label }}</strong><span class="state">{{ check.state }}</span><span class="muted">{{ check.detail }}</span></div>{% endfor %}
+  </div></section>
 
   <section class="grid">
-    <div class="panel half">
-      <h2>Standard endpoints</h2>
-      <table><thead><tr><th>Endpoint</th><th>Status</th><th>Hash</th></tr></thead><tbody>
-      {% for name, fetch in observation.fetches.items() %}
-        <tr><td>{{ name }}</td><td>{{ fetch.status_code or '—' }}{% if fetch.error %}<br><span class="muted">{{ fetch.error }}</span>{% endif %}</td><td><code>{{ (fetch.sha256 or '—')[:16] }}</code></td></tr>
-      {% endfor %}
-      </tbody></table>
-    </div>
-    <div class="panel half">
-      <h2>Third-party domains</h2>
-      {% if observation.third_party_domains %}<ul class="compact">{% for domain in observation.third_party_domains %}<li><code>{{ domain }}</code></li>{% endfor %}</ul>{% else %}<p class="muted">None observed in this scan mode.</p>{% endif %}
-    </div>
+    <div class="panel half"><h2>Eksterne tjenester</h2><p class="muted small">Domener som ble kontaktet eller referert til utenfor nettstedets eget hoveddomene.</p>{% if observation.third_party_domains %}<ul class="compact">{% for domain in observation.third_party_domains %}<li><code>{{ domain }}</code></li>{% endfor %}</ul>{% else %}<p class="muted">Ingen observert i denne undersøkelsesmodusen.</p>{% endif %}</div>
+    <div class="panel half"><h2>Begrensninger</h2><p>Rapporten beskriver offentlige tekniske spor på undersøkelsestidspunktet. Den dokumenterer ikke eierskap, avtaler eller faktisk bruk uten ytterligere kildearbeid.</p>{% if observation.errors %}<p class="muted">Undersøkelsen hadde {{ observation.errors|length }} teknisk(e) forbehold. Detaljene ligger i vedlegget.</p>{% endif %}</div>
   </section>
 
-  {% if observation.errors %}
-  <section class="grid"><div class="panel"><h2>Limits and errors</h2><ul>{% for error in observation.errors %}<li>{{ error }}</li>{% endfor %}</ul></div></section>
-  {% endif %}
+  <section class="grid"><div class="panel">
+    <details class="tech-appendix"><summary>Teknisk dokumentasjon og rådata</summary>
+      <h3 style="margin-top:18px">Standardadresser</h3>
+      <table><thead><tr><th>Adresse</th><th>Svar</th><th>Kontrollsum</th></tr></thead><tbody>{% for name, fetch in observation.fetches.items() %}<tr><td>{{ name }}</td><td>{{ fetch.status_code or '—' }}{% if fetch.error %}<br><span class="muted">{{ fetch.error }}</span>{% endif %}</td><td><code>{{ (fetch.sha256 or '—')[:16] }}</code></td></tr>{% endfor %}</tbody></table>
+      <h3 style="margin-top:22px">DNS</h3>
+      {% if observation.dns %}{% for kind, values in observation.dns.items() %}<p><strong>{{ kind }}</strong></p><ul class="compact">{% for value in values %}<li><code>{{ value }}</code></li>{% endfor %}</ul>{% endfor %}{% else %}<p class="muted">Ingen DNS-data lagret.</p>{% endif %}
+      <h3 style="margin-top:22px">HTTPS-sertifikat</h3>
+      <table><tbody><tr><th>Tilgjengelig</th><td>{{ 'Ja' if observation.tls.available else 'Nei' }}</td></tr><tr><th>Utsteder</th><td>{{ observation.tls.issuer or '—' }}</td></tr><tr><th>Gyldig til</th><td>{{ observation.tls.not_after or '—' }}</td></tr><tr><th>Alternative navn</th><td>{{ observation.tls.san|length }}</td></tr><tr><th>Fingeravtrykk</th><td class="wrap"><code>{{ observation.tls.sha256_fingerprint or '—' }}</code></td></tr></tbody></table>
+      {% if observation.errors %}<h3 style="margin-top:22px">Tekniske forbehold</h3><ul>{% for error in observation.errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+      <details><summary>Normaliserte rådata</summary><pre>{{ raw_json }}</pre></details>
+    </details>
+  </div></section>
 
-  <section class="grid"><div class="panel"><details><summary>Raw normalized observation</summary><pre>{{ raw_json }}</pre></details></div></section>
+  <footer>Rapporten er laget av Website Investigator {{ observation.engine_version }} med metode {{ observation.methodology_version }}. Alle mål, rådata og rapporter lagres privat.</footer>
 </main>
 </body>
 </html>

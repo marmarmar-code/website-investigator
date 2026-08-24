@@ -26,6 +26,14 @@ from .on_demand import (
 LOGGER = logging.getLogger(__name__)
 KEYCHAIN_SERVICE = "no.medier24.website-investigator.slack"
 LAUNCH_AGENT_LABEL = "no.medier24.website-investigator.slack"
+CATEGORY_LABELS = {
+    "publishing_platform": "Publisering",
+    "paywall": "Betaling og abonnement",
+    "advertising": "Annonsering",
+    "analytics": "Måling og analyse",
+    "consent": "Samtykke og personvern",
+    "infrastructure": "Infrastruktur",
+}
 
 
 class SlackClient(Protocol):
@@ -117,20 +125,24 @@ def format_slack_summary(result: InvestigationResult) -> str:
 
     if observation.findings:
         lines.append("\n*Viktigste funn*")
-        confidence = {"strong": "sterk", "likely": "sannsynlig", "weak": "svak"}
+        confidence = {
+            "strong": "høy sikkerhet",
+            "likely": "middels sikkerhet",
+            "weak": "lav sikkerhet",
+        }
         for finding in sorted(
             observation.findings,
             key=lambda item: (item.score, item.name.lower()),
             reverse=True,
         )[:8]:
+            category = CATEGORY_LABELS.get(finding.category, "Annet")
             lines.append(
-                f"• {_slack_escape(finding.name)} "
-                f"({confidence.get(finding.confidence, finding.confidence)} indikasjon)"
+                f"• {category}: {_slack_escape(finding.name)} "
+                f"({confidence.get(finding.confidence, finding.confidence)})"
             )
     else:
         lines.append("\nIngen navngitte teknologifunn ble identifisert.")
 
-    script_count = len(observation.browser.script_urls or observation.metadata.scripts)
     lines.extend(
         [
             "\n*Omfang*",
@@ -146,7 +158,6 @@ def format_slack_summary(result: InvestigationResult) -> str:
                 "informasjonskapsel",
                 "informasjonskapsler",
             ),
-            "• " + _count_label(script_count, "skript", "skript"),
             "• "
             + _count_label(
                 len(observation.errors),
@@ -157,6 +168,26 @@ def format_slack_summary(result: InvestigationResult) -> str:
             "Fullrapporten følger som en privat HTML-fil.",
         ]
     )
+    if observation.ads_txt.available:
+        lines.insert(
+            -3,
+            "• "
+            + _count_label(
+                len(observation.ads_txt.entries),
+                "oppføring i ads.txt",
+                "oppføringer i ads.txt",
+            ),
+        )
+    if observation.security_txt.contacts:
+        lines.insert(
+            -3,
+            "• "
+            + _count_label(
+                len(observation.security_txt.contacts),
+                "sikkerhetskontakt",
+                "sikkerhetskontakter",
+            ),
+        )
     return "\n".join(lines)
 
 

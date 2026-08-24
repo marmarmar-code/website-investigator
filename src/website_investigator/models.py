@@ -92,6 +92,39 @@ class BrowserObservation(BaseModel):
     error: str | None = None
 
 
+class AdsEntry(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    seller_domain: str
+    publisher_account_id: str
+    relationship: Literal["DIRECT", "RESELLER"]
+    certification_authority_id: str | None = None
+
+
+class AdsTxtObservation(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    available: bool = False
+    entries: list[AdsEntry] = Field(default_factory=list)
+    invalid_lines: int = 0
+    truncated: bool = False
+
+
+class SecurityTxtObservation(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    available: bool = False
+    contacts: list[str] = Field(default_factory=list)
+    expires: str | None = None
+    encryption: list[str] = Field(default_factory=list)
+    acknowledgments: list[str] = Field(default_factory=list)
+    policy: list[str] = Field(default_factory=list)
+    canonical: list[str] = Field(default_factory=list)
+    hiring: list[str] = Field(default_factory=list)
+    preferred_languages: list[str] = Field(default_factory=list)
+    invalid_lines: int = 0
+
+
 class Observation(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -115,6 +148,9 @@ class Observation(BaseModel):
     robots_policies: list[RobotsPolicy] = Field(default_factory=list)
     metadata: MetadataObservation = Field(default_factory=MetadataObservation)
     browser: BrowserObservation = Field(default_factory=BrowserObservation)
+    ads_txt: AdsTxtObservation = Field(default_factory=AdsTxtObservation)
+    app_ads_txt: AdsTxtObservation = Field(default_factory=AdsTxtObservation)
+    security_txt: SecurityTxtObservation = Field(default_factory=SecurityTxtObservation)
     third_party_domains: list[str] = Field(default_factory=list)
     findings: list[Finding] = Field(default_factory=list)
     errors: list[str] = Field(default_factory=list)

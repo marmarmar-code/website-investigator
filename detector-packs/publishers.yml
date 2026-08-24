@@ -1,10 +1,10 @@
-version: "2026-08-24.1"
+version: "2026-08-24.2"
 detectors:
   - id: cms.wordpress
     name: WordPress
     category: publishing_platform
-    interpretation: Public page signals indicate WordPress is present.
-    false_positive_note: A migrated site can retain old asset paths.
+    interpretation: Offentlige spor tyder på at WordPress brukes til publisering.
+    false_positive_note: Et nettsted som har byttet system kan fortsatt ha gamle WordPress-filer.
     thresholds: { likely: 45, strong: 80 }
     signals:
       - { type: script_url, pattern: '/wp-(content|includes)/', weight: 45 }
@@ -14,8 +14,8 @@ detectors:
   - id: cms.ghost
     name: Ghost
     category: publishing_platform
-    interpretation: Public page signals indicate the Ghost publishing platform.
-    false_positive_note: Embedded Ghost assets alone do not prove the main site is published with Ghost.
+    interpretation: Offentlige spor tyder på at publiseringsplattformen Ghost brukes.
+    false_positive_note: Innlastede Ghost-filer alene beviser ikke at hele nettstedet publiseres med Ghost.
     thresholds: { likely: 50, strong: 80 }
     signals:
       - { type: meta_generator, pattern: 'ghost', weight: 60 }
@@ -25,8 +25,8 @@ detectors:
   - id: cms.arcxp
     name: Arc XP
     category: publishing_platform
-    interpretation: Public assets indicate technology associated with Arc XP / Arc Publishing.
-    false_positive_note: A publisher can use individual Arc services without using Arc as its entire CMS.
+    interpretation: Offentlige filer tyder på teknologi knyttet til Arc XP / Arc Publishing.
+    false_positive_note: En utgiver kan bruke enkelte Arc-tjenester uten å bruke Arc som hele publiseringssystemet.
     thresholds: { likely: 50, strong: 85 }
     signals:
       - { type: script_url, pattern: 'arcxp\.com|arcpublishing\.com|arc-publishing', weight: 60 }
@@ -35,8 +35,8 @@ detectors:
   - id: paywall.piano
     name: Piano
     category: paywall
-    interpretation: Public scripts or cookies indicate Piano subscription or experience technology.
-    false_positive_note: Piano can be used for analytics or personalization without an active paywall on every page.
+    interpretation: Offentlige skript eller informasjonskapsler tyder på at Piano brukes til abonnement eller personalisering.
+    false_positive_note: Piano kan brukes til analyse eller personalisering uten at alle sider har betalingsmur.
     thresholds: { likely: 45, strong: 80 }
     signals:
       - { type: script_url, pattern: 'tinypass\.com|piano\.io', weight: 60 }
@@ -46,8 +46,8 @@ detectors:
   - id: paywall.zephr
     name: Zephr
     category: paywall
-    interpretation: Public assets indicate Zephr subscription or personalization technology.
-    false_positive_note: Zephr scripts can be loaded before a paywall decision is made.
+    interpretation: Offentlige filer tyder på at Zephr brukes til abonnement eller personalisering.
+    false_positive_note: Zephr-skript kan lastes før systemet avgjør om en betalingsmur skal vises.
     thresholds: { likely: 45, strong: 80 }
     signals:
       - { type: script_url, pattern: 'zephr\.com|zephr-browser', weight: 65 }
@@ -57,8 +57,8 @@ detectors:
   - id: analytics.gtm
     name: Google Tag Manager
     category: analytics
-    interpretation: Google Tag Manager is loaded or referenced.
-    false_positive_note: A container can manage many unrelated tags; shared use does not prove common ownership.
+    interpretation: Google Tag Manager lastes inn eller omtales på siden.
+    false_positive_note: En Tag Manager-beholder kan styre mange ulike verktøy; samme ID er et spor, ikke alene et eierskapsbevis.
     thresholds: { likely: 40, strong: 75 }
     signals:
       - { type: script_url, pattern: 'googletagmanager\.com/(gtm|ns)\.js', weight: 55 }
@@ -67,8 +67,8 @@ detectors:
   - id: analytics.google
     name: Google Analytics
     category: analytics
-    interpretation: Google Analytics is loaded or referenced.
-    false_positive_note: A measurement ID is an account-level clue, not proof of ownership.
+    interpretation: Google Analytics lastes inn eller omtales på siden.
+    false_positive_note: En måle-ID er et kontospor, men beviser ikke hvem som eier eller kontrollerer kontoen.
     thresholds: { likely: 40, strong: 75 }
     signals:
       - { type: script_url, pattern: 'google-analytics\.com|googletagmanager\.com/gtag/js', weight: 55 }
@@ -77,8 +77,8 @@ detectors:
   - id: analytics.snowplow
     name: Snowplow
     category: analytics
-    interpretation: Public assets indicate Snowplow analytics.
-    false_positive_note: The word snowplow can occur in unrelated content; script or request evidence is stronger.
+    interpretation: Offentlige filer tyder på at Snowplow brukes til analyse.
+    false_positive_note: Navnet kan forekomme i annet innhold; skript- og nettverksspor er sterkere dokumentasjon.
     thresholds: { likely: 45, strong: 80 }
     signals:
       - { type: script_url, pattern: 'snowplow|sp\.js', weight: 55 }
@@ -88,8 +88,8 @@ detectors:
   - id: analytics.matomo
     name: Matomo
     category: analytics
-    interpretation: Public assets indicate Matomo or legacy Piwik analytics.
-    false_positive_note: Old references can remain after migration.
+    interpretation: Offentlige filer tyder på at Matomo eller det tidligere navnet Piwik brukes til analyse.
+    false_positive_note: Gamle referanser kan bli liggende igjen etter at nettstedet har byttet løsning.
     thresholds: { likely: 45, strong: 80 }
     signals:
       - { type: script_url, pattern: 'matomo\.js|piwik\.js', weight: 60 }
@@ -98,8 +98,8 @@ detectors:
   - id: consent.onetrust
     name: OneTrust
     category: consent
-    interpretation: Public assets indicate OneTrust consent management.
-    false_positive_note: A script can be present while another interface is shown in some regions.
+    interpretation: Offentlige filer tyder på at OneTrust brukes til samtykkehåndtering.
+    false_positive_note: Et skript kan være til stede selv om en annen løsning vises i enkelte land.
     thresholds: { likely: 45, strong: 80 }
     signals:
       - { type: script_url, pattern: 'cdn\.cookielaw\.org|onetrust\.com', weight: 65 }
@@ -108,8 +108,8 @@ detectors:
   - id: consent.didomi
     name: Didomi
     category: consent
-    interpretation: Public assets indicate Didomi consent management.
-    false_positive_note: Regional loading can make results vary by scan location.
+    interpretation: Offentlige filer tyder på at Didomi brukes til samtykkehåndtering.
+    false_positive_note: Regional innlasting kan gjøre at resultatet varierer etter hvor undersøkelsen kjøres fra.
     thresholds: { likely: 45, strong: 80 }
     signals:
       - { type: script_url, pattern: 'didomi\.io|privacy-center\.org', weight: 65 }
@@ -118,8 +118,8 @@ detectors:
   - id: consent.sourcepoint
     name: Sourcepoint
     category: consent
-    interpretation: Public assets indicate Sourcepoint consent management.
-    false_positive_note: Regional loading can make results vary by scan location.
+    interpretation: Offentlige filer tyder på at Sourcepoint brukes til samtykkehåndtering.
+    false_positive_note: Regional innlasting kan gjøre at resultatet varierer etter hvor undersøkelsen kjøres fra.
     thresholds: { likely: 45, strong: 80 }
     signals:
       - { type: script_url, pattern: 'privacy-mgmt\.com', weight: 65 }
@@ -128,8 +128,8 @@ detectors:
   - id: consent.cookiebot
     name: Cookiebot
     category: consent
-    interpretation: Public assets indicate Cookiebot consent management.
-    false_positive_note: A dormant script can remain after a provider change.
+    interpretation: Offentlige filer tyder på at Cookiebot brukes til samtykkehåndtering.
+    false_positive_note: Et ubrukt skript kan bli liggende igjen etter at nettstedet har byttet leverandør.
     thresholds: { likely: 45, strong: 80 }
     signals:
       - { type: script_url, pattern: 'consent\.cookiebot\.com', weight: 65 }
@@ -138,8 +138,8 @@ detectors:
   - id: advertising.google_gpt
     name: Google Publisher Tag
     category: advertising
-    interpretation: Google Publisher Tag is loaded or referenced.
-    false_positive_note: This identifies ad-serving technology, not a specific commercial relationship.
+    interpretation: Google Publisher Tag lastes inn eller omtales og tyder på teknologi for annonsevisning.
+    false_positive_note: Funnet identifiserer annonseteknologi, ikke et bestemt kommersielt samarbeid.
     thresholds: { likely: 45, strong: 80 }
     signals:
       - { type: script_url, pattern: 'securepubads\.g\.doubleclick\.net/tag/js/gpt\.js|googletagservices\.com/tag/js/gpt\.js', weight: 70 }
@@ -148,8 +148,8 @@ detectors:
   - id: advertising.prebid
     name: Prebid.js
     category: advertising
-    interpretation: Public assets indicate client-side Prebid header bidding.
-    false_positive_note: A bundled library can be present without active auctions on every page.
+    interpretation: Offentlige filer tyder på at Prebid.js brukes til annonseauksjoner i nettleseren.
+    false_positive_note: Programbiblioteket kan være lastet uten at en annonseauksjon kjøres på hver side.
     thresholds: { likely: 45, strong: 80 }
     signals:
       - { type: script_url, pattern: 'prebid(?:\.min)?\.js', weight: 65 }
@@ -158,8 +158,8 @@ detectors:
   - id: infrastructure.cloudflare
     name: Cloudflare
     category: infrastructure
-    interpretation: Response headers or assets indicate Cloudflare edge services.
-    false_positive_note: Cloudflare use does not imply common ownership between sites.
+    interpretation: Svarhoder eller filer tyder på at Cloudflare leverer eller beskytter nettstedet.
+    false_positive_note: Bruk av Cloudflare betyr ikke at nettsteder med samme leverandør har felles eier.
     thresholds: { likely: 45, strong: 80 }
     signals:
       - { type: header, pattern: '^server:\s*cloudflare$', weight: 65 }
