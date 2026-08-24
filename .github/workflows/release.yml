@@ -21,9 +21,9 @@ jobs:
         id: image
         shell: bash
         run: |
-          IMAGE="ghcr.io/${ github.repository }"
+          IMAGE="ghcr.io/${{ github.repository }}"
           IMAGE="${IMAGE,,}"
-          VERSION="${ github.ref_name }"
+          VERSION="${{ github.ref_name }}"
           echo "image=$IMAGE" >> "$GITHUB_OUTPUT"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
       - name: Authenticate to GHCR
