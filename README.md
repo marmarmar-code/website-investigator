@@ -2,16 +2,16 @@
 
 Website Investigator is an evidence-first, passive website inspection and monitoring tool for journalists. It turns a URL into a structured dossier and can monitor a **private** target list without exposing that list in the public engine repository.
 
-> Status: functional alpha. The passive scanner, evidence model, detector packs, semantic diff, local reports and private-runtime workflow are implemented. Historical Wayback analysis, broad relationship graphs and production-grade distributed scheduling are deliberately deferred.
+> Status: functional alpha. The passive scanner, evidence model, detector packs, semantic diff, local reports and public runtime workflow are implemented. Historical Wayback analysis, broad relationship graphs and production-grade distributed scheduling are deliberately deferred.
 
 ## Repository boundary
 
 Use two repositories:
 
 1. **Public:** this engine, detector format, tests, documentation and container image.
-2. **Private:** targets, observations, events, reports, notification secrets and schedules.
+2. **Private:** targets, observations, events, reports and notification state.
 
-The private runtime pulls a version-pinned public container. The public repository never reads or receives runtime data.
+The manual workflow runs in the public repository and checks out the private runtime with a deploy key restricted to that repository. It pulls a version-pinned public container and pushes generated runtime files back only to the private repository. Private runtime data never enters the public Git history or workflow artifacts.
 
 ## What it inspects
 
@@ -56,14 +56,14 @@ wi serve --runtime ../website-investigator-runtime
 
 ## Private monitoring
 
-Copy `runtime-template/` into a separate private repository or use the supplied companion template. Add targets only there.
+Copy `runtime-template/` into a separate private repository or use the supplied companion template. Add targets only there. Keep the private repository storage-only; run `Private runtime monitor` manually from the public repository.
 
 ```bash
 wi doctor --runtime ../website-investigator-runtime
 wi monitor --runtime ../website-investigator-runtime
 ```
 
-Notifications are optional. Set one or more [Apprise](https://github.com/caronc/apprise) URLs in the private environment variable `WI_APPRISE_URLS`, separated by newlines. Unsent notifications remain in the private queue.
+Notifications are optional. Set one or more [Apprise](https://github.com/caronc/apprise) URLs in the public repository's `WI_APPRISE_URLS` Actions secret, separated by newlines. Unsent notifications remain in the private queue.
 
 ## Privacy and source handling
 

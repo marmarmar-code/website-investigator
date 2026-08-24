@@ -384,14 +384,24 @@ def doctor(runtime: Path) -> list[tuple[str, bool, str]]:
         checks.append(("policies_config", isinstance(policies, dict), str(policies_path)))
     except (OSError, yaml.YAMLError) as exc:
         checks.append(("policies_config", False, str(exc)))
-    workflow_path = runtime / ".github" / "workflows" / "scan.yml"
-    try:
-        workflow = yaml.load(workflow_path.read_text(encoding="utf-8"), Loader=yaml.BaseLoader)
-        triggers = workflow.get("on", {}) if isinstance(workflow, dict) else {}
-        schedule_disabled = not isinstance(triggers, dict) or "schedule" not in triggers
-        checks.append(("schedule_disabled", schedule_disabled, str(workflow_path)))
-    except (OSError, yaml.YAMLError) as exc:
-        checks.append(("schedule_disabled", False, str(exc)))
+    workflow_dir = runtime / ".github" / "workflows"
+    workflow_files = (
+        sorted(
+            path.relative_to(runtime)
+            for path in workflow_dir.rglob("*")
+            if path.is_file() and path.suffix.lower() in {".yml", ".yaml"}
+        )
+        if workflow_dir.exists()
+        else []
+    )
+    storage_only = not workflow_files
+    workflow_detail = (
+        "private runtime contains no workflows; execution belongs to the public repository"
+        if storage_only
+        else "private runtime workflow found: " + ", ".join(map(str, workflow_files))
+    )
+    checks.append(("runtime_actions_absent", storage_only, workflow_detail))
+    checks.append(("schedule_disabled", storage_only, workflow_detail))
     checks.append(
         (
             "notifications_configured",

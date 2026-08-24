@@ -5,7 +5,7 @@ import pytest
 import yaml
 
 from website_investigator.models import Evidence, Finding, Observation, TargetConfig
-from website_investigator.runtime import run_monitor
+from website_investigator.runtime import doctor, run_monitor
 
 
 def observation(with_paywall: bool = False, *, status: str = "success") -> Observation:
@@ -51,6 +51,30 @@ def setup_runtime(path: Path) -> None:
         )
     )
     (path / "engine.lock").write_text("engine:\n  version: 0.1.0\n")
+
+
+def test_doctor_requires_storage_only_private_runtime(tmp_path):
+    (tmp_path / "config").mkdir(parents=True)
+    (tmp_path / "config" / "targets.yml").write_text("targets: []\n")
+    (tmp_path / "config" / "policies.yml").write_text("{}\n")
+    (tmp_path / "engine.lock").write_text(
+        "engine:\n"
+        "  image: ghcr.io/example/website-investigator\n"
+        "  version: 0.1.0\n"
+        f"  digest: sha256:{'0' * 64}\n"
+        "  schema_version: 1\n"
+    )
+
+    checks = {name: passed for name, passed, _ in doctor(tmp_path)}
+    assert checks["runtime_actions_absent"] is True
+    assert checks["schedule_disabled"] is True
+
+    workflow = tmp_path / ".github" / "workflows" / "scan.yml"
+    workflow.parent.mkdir(parents=True)
+    workflow.write_text("on: workflow_dispatch\n")
+    checks = {name: passed for name, passed, _ in doctor(tmp_path)}
+    assert checks["runtime_actions_absent"] is False
+    assert checks["schedule_disabled"] is False
 
 
 def test_runtime_baselines_then_creates_event(tmp_path, monkeypatch):

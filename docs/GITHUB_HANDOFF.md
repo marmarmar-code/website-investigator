@@ -9,8 +9,9 @@ Publish only after every local check in `BUILD_STATUS.md` is green.
 4. Read the immutable `sha256` digest from the completed release workflow, make the package public,
    and prove an anonymous pull using `image@sha256:digest`.
 5. Put that exact image, version and digest in the private `engine.lock`; never use `latest`.
-6. Keep the private workflow dispatch-only. Run it twice with the harmless example target, verify
-   the baseline and the unchanged second run, then remove the active example target.
+6. Keep the private runtime repository storage-only. Run the public repository's dispatch-only
+   runtime workflow twice with the harmless example target, verify the baseline and the unchanged
+   second run, then remove the active example target.
 
 Do not add a schedule or real targets until the private manual run has been reviewed and separately
 approved.
