@@ -10,16 +10,27 @@ import typer
 from . import __version__
 from .diff import compare_observations
 from .models import Observation
+from .on_demand import private_repository_is_clean, sync_private_paths
 from .reports import write_observation_report
 from .runtime import doctor as run_doctor
 from .runtime import run_monitor
 from .scanner import scan_website
+from .slack_bridge import (
+    configure_slack,
+    local_slack_checks,
+    run_slack_bridge,
+)
 from .util import read_json, write_json
 
 app = typer.Typer(
     no_args_is_help=True,
     help="Evidence-first website inspection and private monitoring for journalists.",
 )
+slack_app = typer.Typer(
+    no_args_is_help=True,
+    help="Bruk Website Investigator fra et privat Slack-arbeidsområde.",
+)
+app.add_typer(slack_app, name="slack")
 
 
 @app.command()
@@ -146,6 +157,65 @@ def serve(
 @app.command()
 def version() -> None:
     typer.echo(__version__)
+
+
+@slack_app.command("setup")
+def slack_setup(
+    runtime: Annotated[Path, typer.Option("--runtime", exists=True, file_okay=False)],
+) -> None:
+    """Koble til Slack og start den lokale bakgrunnstjenesten."""
+    clean_before = private_repository_is_clean(runtime)
+    app_token = typer.prompt("Slack app token (xapp-)", hide_input=True)
+    bot_token = typer.prompt("Slack bot token (xoxb-)", hide_input=True)
+    try:
+        config, team_name = configure_slack(
+            runtime,
+            app_token=app_token,
+            bot_token=bot_token,
+        )
+    except Exception as exc:
+        typer.echo(f"Slack-oppsettet mislyktes ({type(exc).__name__}).", err=True)
+        raise typer.Exit(code=1) from None
+
+    sync_status = "ikke aktivert"
+    if config.sync_private_repository:
+        config_path = runtime.resolve() / "config" / "slack.yml"
+        sync = sync_private_paths(
+            runtime,
+            (config_path,),
+            commit_message="Configure private Slack bridge",
+            clean_before_write=clean_before,
+        )
+        sync_status = sync.status
+    typer.echo(f"Slack er koblet til {team_name}.")
+    typer.echo(f"Bakgrunnstjenesten er startet. Privat synk: {sync_status}.")
+
+
+@slack_app.command("doctor")
+def slack_doctor(
+    runtime: Annotated[Path, typer.Option("--runtime", exists=True, file_okay=False)],
+) -> None:
+    """Kontroller det lokale Slack-oppsettet uten å sende en melding."""
+    failures = 0
+    for name, passed, detail in local_slack_checks(runtime):
+        marker = "OK" if passed else "FAIL"
+        typer.echo(f"[{marker}] {name}: {detail}")
+        if not passed:
+            failures += 1
+    if failures:
+        raise typer.Exit(code=1)
+
+
+@slack_app.command("run")
+def slack_run(
+    runtime: Annotated[Path, typer.Option("--runtime", exists=True, file_okay=False)],
+) -> None:
+    """Kjør den private Slack-tjenesten i forgrunnen."""
+    try:
+        run_slack_bridge(runtime)
+    except Exception as exc:
+        typer.echo(f"Slack-tjenesten stoppet ({type(exc).__name__}).", err=True)
+        raise typer.Exit(code=1) from None
 
 
 if __name__ == "__main__":

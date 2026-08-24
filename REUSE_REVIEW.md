@@ -13,6 +13,7 @@ private runtime data.
 - dnspython and Python's TLS support for public network metadata.
 - Pydantic, Typer, Jinja, FastAPI and Uvicorn for models, CLI, reports and the local-only UI.
 - Apprise for optional notifications from the private runtime.
+- Slack Bolt and the Slack SDK for the optional local Socket Mode command bridge.
 
 ## Full applications considered but not embedded
 

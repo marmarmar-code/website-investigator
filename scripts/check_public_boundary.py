@@ -17,6 +17,8 @@ SECRET_PATTERNS = {
     "Slack webhook": re.compile(r"https://hooks\.slack\.com/services/[A-Za-z0-9_/+-]+"),
     "GitHub token": re.compile(r"gh[pousr]_[A-Za-z0-9]{30,}"),
     "GitHub fine-grained token": re.compile(r"github_pat_[A-Za-z0-9_]{20,}"),
+    "Slack app token": re.compile(r"xapp-[A-Za-z0-9-]{20,}"),
+    "Slack bot token": re.compile(r"xoxb-[A-Za-z0-9-]{20,}"),
     "AWS access key": re.compile(r"AKIA[0-9A-Z]{16}"),
     "Generic private key": re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"),
 }

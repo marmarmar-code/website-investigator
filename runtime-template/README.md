@@ -15,3 +15,6 @@ The example public workflow deliberately has no schedule. Add a cron trigger onl
 manual runs are approved.
 
 The first successful scan creates a baseline and sends no change alert.
+
+For optional private Slack operation, copy `slack.example.yml` to the private runtime as
+`config/slack.yml` and follow `docs/SLACK_SETUP.md` in the public engine repository.

@@ -65,6 +65,18 @@ wi monitor --runtime ../website-investigator-runtime
 
 Notifications are optional. Set one or more [Apprise](https://github.com/caronc/apprise) URLs in the public repository's `WI_APPRISE_URLS` Actions secret, separated by newlines. Unsent notifications remain in the private queue.
 
+## Slack operation
+
+The optional Slack bridge makes GitHub an implementation detail rather than the user interface.
+After one-time setup, a workspace member can run `/undersok example.com`; the scan runs locally,
+and a private summary plus the full HTML report is sent to that user's Slack App Home. On-demand
+targets and reports are written only to the private runtime and can be synchronized to its private
+repository. Public GitHub Actions is not used for Slack-requested scans.
+
+The bridge uses Slack Socket Mode, so it requires no public callback server. Credentials are stored
+in macOS Keychain and the local background service is installed only by the explicit setup command.
+See [Slack setup](docs/SLACK_SETUP.md).
+
 ## Privacy and source handling
 
 - No telemetry or automatic crash reporting.

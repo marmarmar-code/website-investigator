@@ -153,3 +153,16 @@ class RuntimeConfig(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     targets: list[TargetConfig] = Field(default_factory=list)
+
+
+class SlackRuntimeConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    enabled: bool = False
+    command: str = Field(default="/undersok", pattern=r"^/[a-z0-9_-]{1,31}$")
+    scan_mode: Literal["quick", "deep"] = "deep"
+    workspace_id: str | None = None
+    allowed_user_ids: list[str] = Field(default_factory=list)
+    allowed_channel_ids: list[str] = Field(default_factory=list)
+    sync_private_repository: bool = True
+    queue_size: int = Field(default=4, ge=1, le=20)

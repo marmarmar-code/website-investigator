@@ -1,0 +1,8 @@
+enabled: false
+command: /undersok
+scan_mode: deep
+workspace_id: null
+allowed_user_ids: []
+allowed_channel_ids: []
+sync_private_repository: true
+queue_size: 4

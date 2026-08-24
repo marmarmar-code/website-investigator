@@ -13,7 +13,7 @@ The reviewed runtime packages are grouped below. Exact resolved versions are pri
 | BSD-2-Clause | Apprise, Pygments |
 | BSD-3-Clause or upstream BSD classifier | Click, extruct, HTTP Core, HTTPX, idna, Jinja, lxml, lxml-html-clean, Markdown, MarkupSafe, OAuthLib, Protego, RDFLib, Starlette, tldextract, Uvicorn, w3lib, webencodings |
 | ISC | dnspython, requests-oauthlib, Shellingham |
-| MIT | annotated-doc, annotated-types, AnyIO, Beautiful Soup, charset-normalizer, FastAPI, filelock, h11, html-text, html5lib, jstyleson, markdown-it-py, mdurl, mf2py, Pydantic, pydantic-core, pyee, pyparsing, PyYAML, Rich, six, Soup Sieve, Typer, typing-inspection, urllib3 |
+| MIT | annotated-doc, annotated-types, AnyIO, Beautiful Soup, charset-normalizer, FastAPI, filelock, h11, html-text, html5lib, jstyleson, markdown-it-py, mdurl, mf2py, Pydantic, pydantic-core, pyee, pyparsing, PyYAML, Rich, six, Slack Bolt, Slack SDK, Soup Sieve, Typer, typing-inspection, urllib3 |
 | MIT and PSF-2.0 | greenlet |
 | PSF-2.0 | typing-extensions |
 | MPL-2.0 | certifi |

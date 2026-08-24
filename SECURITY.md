@@ -11,6 +11,13 @@ Website Investigator accepts untrusted URLs and HTML. Treat scans as network-fac
 - Keep the runtime repository private.
 - Pin the public container by digest before production use.
 - Never run pull-request code with private runtime secrets.
+- Keep Slack app and bot tokens in macOS Keychain; never put them in repository files, logs or
+  command-line arguments.
+- Slack-requested targets and reports are sent to Slack and the private runtime only. The bridge
+  uses Socket Mode and opens no inbound public server.
+- By default, any member of the installed workspace can request a scan, but the result is delivered
+  only to that member's private App Home. Use the private user/channel allowlists when tighter
+  access is required.
 
 ## Known alpha limitations
 
