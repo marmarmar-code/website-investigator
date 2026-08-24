@@ -68,5 +68,5 @@ jobs:
             echo "No runtime changes"
             exit 0
           }
-          git -C runtime commit -m "Update private website observations"
-          git -C runtime push origin HEAD:main
+          git -C runtime commit --quiet -m "Update private website observations"
+          git -C runtime push --quiet origin HEAD:main
