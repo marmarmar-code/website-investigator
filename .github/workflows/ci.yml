@@ -29,6 +29,8 @@ jobs:
         run: ruff check .
       - name: Test
         run: pytest --cov=website_investigator --cov-report=term-missing
+      - name: Test stateless Slack receiver
+        run: node --test cloudflare/test/worker.test.mjs
       - name: Validate workflow YAML
         run: python scripts/check_workflow_yaml.py .github/workflows
       - name: Review installed runtime dependency licenses

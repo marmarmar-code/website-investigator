@@ -1,0 +1,13 @@
+{
+  "key": "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8",
+  "token": "v1.AAECAwQFBgcICQoL.PCCgfreWq3TjY626ncsKCPKj4keEJDYYGl3Hty1bNoI5IpqonvMiqESUJcDptkoKjWoEuT_jgfYd4lh1OtnX0phIsgqg6wlOeSzLA5_ja8Zb5aQeExsyBY2R--Ibn9Sz6dR7k9ckukX3eByIaiAQTYkzJ_i35wm4OZo2oN2PCiyBcFT3huSfFlu1ao0fuSSjWJqGWWp492i2fatGyOG9q8DDvDnLlr8N0ga5pb70pIGs9voSu5tDjFXvvZmvlFay8WpMZ4nrrb5EO-4",
+  "payload": {
+    "version": 1,
+    "request_id": "20260824T120000Z-a1b2c3d4e5",
+    "url": "<https://example.com|example.com>",
+    "user_id": "U123TEST",
+    "team_id": "T123TEST",
+    "channel_id": "C123TEST",
+    "issued_at": 1800000000
+  }
+}

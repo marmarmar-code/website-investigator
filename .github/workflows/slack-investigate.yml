@@ -1,7 +1,12 @@
-name: Private runtime monitor
+name: Private Slack investigation
 
 on:
   workflow_dispatch:
+    inputs:
+      job:
+        description: Encrypted private Slack job
+        required: true
+        type: string
 
 concurrency:
   group: website-investigator-private-runtime
@@ -11,7 +16,7 @@ permissions:
   contents: read
 
 jobs:
-  monitor:
+  investigate:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -35,12 +40,18 @@ jobs:
             https://api.github.com/repos/marmarmar-code/website-investigator-runtime)
           test "$HTTP_STATUS" = "404"
 
-      - name: Run pinned public engine
+      - name: Run encrypted Slack investigation with pinned public engine
         env:
-          WI_APPRISE_URLS: ${{ secrets.WI_APPRISE_URLS }}
           WI_REDACT_LOGS: "1"
+          WI_SLACK_BOT_TOKEN: ${{ secrets.WI_SLACK_BOT_TOKEN }}
+          WI_SLACK_JOB: ${{ inputs.job }}
+          WI_SLACK_PAYLOAD_KEY: ${{ secrets.WI_SLACK_PAYLOAD_KEY }}
         shell: bash
         run: |
+          test -n "$WI_SLACK_BOT_TOKEN"
+          test -n "$WI_SLACK_JOB"
+          test -n "$WI_SLACK_PAYLOAD_KEY"
+          echo "::add-mask::$WI_SLACK_JOB"
           IMAGE=$(awk -F'"' '/^[[:space:]]*image:/ {print $2}' runtime/engine.lock)
           DIGEST=$(awk -F'"' '/^[[:space:]]*digest:/ {print $2}' runtime/engine.lock)
           test "$IMAGE" = "ghcr.io/marmarmar-code/website-investigator"
@@ -50,24 +61,26 @@ jobs:
           docker run --rm \
             --user "$(id -u):$(id -g)" \
             -e HOME=/tmp \
-            -e WI_APPRISE_URLS \
             -e WI_REDACT_LOGS \
+            -e WI_SLACK_BOT_TOKEN \
+            -e WI_SLACK_JOB \
+            -e WI_SLACK_PAYLOAD_KEY \
             -v "$GITHUB_WORKSPACE/runtime:/runtime" \
-            "$IMAGE@$DIGEST" monitor --runtime /runtime
+            "$IMAGE@$DIGEST" slack cloud-job --runtime /runtime
 
       - name: Persist only private runtime outputs
         shell: bash
         run: |
-          if [ -z "$(git -C runtime status --porcelain -- data notifications reports)" ]; then
+          if [ -z "$(git -C runtime status --porcelain -- data reports)" ]; then
             echo "No runtime changes"
             exit 0
           fi
           git -C runtime config user.name "website-investigator[bot]"
           git -C runtime config user.email "website-investigator[bot]@users.noreply.github.com"
-          git -C runtime add data notifications reports
+          git -C runtime add data reports
           git -C runtime diff --cached --quiet && {
             echo "No runtime changes"
             exit 0
           }
-          git -C runtime commit --quiet -m "Update private website observations"
+          git -C runtime commit --quiet -m "Record private Slack investigation"
           git -C runtime push --quiet origin HEAD:main

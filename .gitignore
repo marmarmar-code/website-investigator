@@ -9,6 +9,9 @@ dist/
 build/
 *.egg-info/
 .env
+.dev.vars
+node_modules/
+.wrangler/
 runtime/
 reports/
 playwright-report/

@@ -13,7 +13,9 @@ private runtime data.
 - dnspython and Python's TLS support for public network metadata.
 - Pydantic, Typer, Jinja, FastAPI and Uvicorn for models, CLI, reports and the local-only UI.
 - Apprise for optional notifications from the private runtime.
-- Slack Bolt and the Slack SDK for the optional local Socket Mode command bridge.
+- Slack Bolt and the Slack SDK for Slack command handling and private result delivery.
+- Cryptography's AES-GCM implementation for authenticated decryption inside the pinned engine;
+  the stateless receiver uses the compatible Web Crypto API built into Cloudflare Workers.
 
 ## Full applications considered but not embedded
 

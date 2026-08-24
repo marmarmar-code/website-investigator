@@ -8,6 +8,7 @@ from typing import Annotated
 import typer
 
 from . import __version__
+from .cloud_slack import run_cloud_slack_job
 from .diff import compare_observations
 from .models import Observation
 from .on_demand import private_repository_is_clean, sync_private_paths
@@ -216,6 +217,19 @@ def slack_run(
     except Exception as exc:
         typer.echo(f"Slack-tjenesten stoppet ({type(exc).__name__}).", err=True)
         raise typer.Exit(code=1) from None
+
+
+@slack_app.command("cloud-job", hidden=True)
+def slack_cloud_job(
+    runtime: Annotated[Path, typer.Option("--runtime", exists=True, file_okay=False)],
+) -> None:
+    """Kjør ett kryptert Slack-oppdrag fra den offentlige GitHub-jobben."""
+    try:
+        result = run_cloud_slack_job(runtime)
+    except Exception as exc:
+        typer.echo(f"Slack-oppdraget stoppet ({type(exc).__name__}).", err=True)
+        raise typer.Exit(code=1) from None
+    typer.echo(f"Slack-oppdrag fullført: {result.request_id}")
 
 
 if __name__ == "__main__":

@@ -11,13 +11,16 @@ Website Investigator accepts untrusted URLs and HTML. Treat scans as network-fac
 - Keep the runtime repository private.
 - Pin the public container by digest before production use.
 - Never run pull-request code with private runtime secrets.
-- Keep Slack app and bot tokens in macOS Keychain; never put them in repository files, logs or
-  command-line arguments.
-- Slack-requested targets and reports are sent to Slack and the private runtime only. The bridge
-  uses Socket Mode and opens no inbound public server.
-- By default, any member of the installed workspace can request a scan, but the result is delivered
-  only to that member's private App Home. Use the private user/channel allowlists when tighter
-  access is required.
+- Keep Slack, GitHub and encryption credentials only in Cloudflare Workers Secrets, GitHub Actions
+  Secrets or macOS Keychain for the optional local fallback. Never put them in repository files,
+  logs, workflow inputs or command-line arguments.
+- The Cloudflare receiver must remain stateless, validate Slack signatures and timestamps, require
+  the private workspace and user allowlist, and keep detailed Worker logging disabled.
+- Slack-requested targets must be authenticated-encrypted before GitHub dispatch. The public
+  workflow may receive only ciphertext, may publish no target-bearing artifact, and must keep
+  redacted logs.
+- Slack-requested targets and reports are written only to Slack and the private runtime. Results
+  are delivered only to the requesting user's private App Home.
 
 ## Known alpha limitations
 

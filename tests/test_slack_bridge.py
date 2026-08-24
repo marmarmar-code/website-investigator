@@ -39,7 +39,7 @@ def _observation() -> Observation:
     return Observation(
         schema_version=1,
         methodology_version="test-method",
-        engine_version="0.2.0",
+        engine_version="0.3.0",
         requested_url="https://example.com",
         final_url="https://example.com/",
         host="example.com",
@@ -233,8 +233,10 @@ def test_public_slack_manifest_has_only_required_scopes():
 
     manifest_path = Path(__file__).resolve().parents[1] / "slack-app-manifest.yml"
     manifest = yaml.safe_load(manifest_path.read_text(encoding="utf-8"))
-    assert manifest["settings"]["socket_mode_enabled"] is True
-    assert manifest["features"]["slash_commands"][0]["command"] == "/undersok"
+    assert manifest["settings"]["socket_mode_enabled"] is False
+    command = manifest["features"]["slash_commands"][0]
+    assert command["command"] == "/undersok"
+    assert command["url"].endswith("/slack/commands")
     assert set(manifest["oauth_config"]["scopes"]["bot"]) == {
         "commands",
         "chat:write",

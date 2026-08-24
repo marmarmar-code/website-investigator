@@ -1,0 +1,25 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "website-investigator-slack",
+  "main": "src/worker.mjs",
+  "compatibility_date": "2026-08-24",
+  "workers_dev": true,
+  "observability": {
+    "enabled": false
+  },
+  "vars": {
+    "GITHUB_OWNER": "marmarmar-code",
+    "GITHUB_REPO": "website-investigator",
+    "GITHUB_WORKFLOW": "slack-investigate.yml",
+    "GITHUB_REF": "main"
+  },
+  "secrets": {
+    "required": [
+      "SLACK_SIGNING_SECRET",
+      "SLACK_TEAM_ID",
+      "SLACK_ALLOWED_USER_IDS",
+      "GITHUB_ACTIONS_TOKEN",
+      "WI_SLACK_PAYLOAD_KEY"
+    ]
+  }
+}

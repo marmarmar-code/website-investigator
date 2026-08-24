@@ -67,15 +67,15 @@ Notifications are optional. Set one or more [Apprise](https://github.com/caronc/
 
 ## Slack operation
 
-The optional Slack bridge makes GitHub an implementation detail rather than the user interface.
-After one-time setup, a workspace member can run `/undersok example.com`; the scan runs locally,
-and a private summary plus the full HTML report is sent to that user's Slack App Home. On-demand
-targets and reports are written only to the private runtime and can be synchronized to its private
-repository. Public GitHub Actions is not used for Slack-requested scans.
+Slack is the user interface; GitHub remains an implementation detail. An approved user runs
+`/undersok example.com` and immediately receives a private receipt. A stateless Cloudflare Worker
+verifies the Slack signature, encrypts the request and starts the public workflow with ciphertext
+only. The pinned public engine reads the encrypted job, writes the target and report only to the
+private runtime, and sends the summary plus HTML report to the requester's Slack App Home.
 
-The bridge uses Slack Socket Mode, so it requires no public callback server. Credentials are stored
-in macOS Keychain and the local background service is installed only by the explicit setup command.
-See [Slack setup](docs/SLACK_SETUP.md).
+The receiver stores no targets or reports, detailed Worker logging is disabled, and the public
+workflow publishes no artifacts. Slack, GitHub and encryption credentials are stored only in their
+respective secret stores. See [Slack setup](docs/SLACK_SETUP.md).
 
 ## Privacy and source handling
 
