@@ -56,7 +56,10 @@ test("valid Slack command dispatches only encrypted target data", async () => {
   let githubRequest;
   const fetchImpl = async (url, options) => {
     githubRequest = { url, options };
-    return new Response(null, { status: 204 });
+    return new Response(JSON.stringify({ workflow_run_id: 1 }), {
+      status: 200,
+      headers: { "content-type": "application/json" },
+    });
   };
 
   const response = await handleRequest(await slackRequest(), ENV, {

@@ -128,7 +128,9 @@ def test_slack_result_is_sent_only_to_requester_dm(tmp_path, monkeypatch):
     )
     monkeypatch.setattr(
         "website_investigator.slack_bridge.private_repository_is_clean",
-        lambda runtime: True,
+        lambda runtime: pytest.fail(
+            "Git must not be required when the outer workflow persists private outputs"
+        ),
     )
     client = FakeSlackClient()
     job = SlackJob(

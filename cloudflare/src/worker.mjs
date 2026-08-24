@@ -141,7 +141,7 @@ async function dispatchGitHub(env, encryptedJob, fetchImpl) {
       signal: AbortSignal.timeout(1800),
     },
   );
-  return response.status === 204;
+  return response.ok;
 }
 
 export async function handleRequest(

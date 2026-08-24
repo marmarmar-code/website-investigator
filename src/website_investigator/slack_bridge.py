@@ -185,7 +185,9 @@ def process_slack_job(
     )
     direct_channel = _response_value(started, "channel", job.user_id)
     thread_ts = _response_value(started, "ts", "")
-    clean_before = private_repository_is_clean(runtime)
+    clean_before = (
+        private_repository_is_clean(runtime) if config.sync_private_repository else False
+    )
 
     try:
         result = run_on_demand_investigation(
