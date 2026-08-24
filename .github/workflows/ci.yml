@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # pinned v4 major tag snapshot
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # pinned v4 major tag snapshot
       - uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # pinned v5 major tag snapshot
         with:
           python-version: "3.12"
