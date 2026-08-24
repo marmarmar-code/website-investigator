@@ -1,0 +1,167 @@
+version: "2026-08-24.1"
+detectors:
+  - id: cms.wordpress
+    name: WordPress
+    category: publishing_platform
+    interpretation: Public page signals indicate WordPress is present.
+    false_positive_note: A migrated site can retain old asset paths.
+    thresholds: { likely: 45, strong: 80 }
+    signals:
+      - { type: script_url, pattern: '/wp-(content|includes)/', weight: 45 }
+      - { type: html, pattern: 'wp-json|/wp-content/', weight: 35 }
+      - { type: meta_generator, pattern: 'wordpress', weight: 55 }
+
+  - id: cms.ghost
+    name: Ghost
+    category: publishing_platform
+    interpretation: Public page signals indicate the Ghost publishing platform.
+    false_positive_note: Embedded Ghost assets alone do not prove the main site is published with Ghost.
+    thresholds: { likely: 50, strong: 80 }
+    signals:
+      - { type: meta_generator, pattern: 'ghost', weight: 60 }
+      - { type: script_url, pattern: 'ghost\.io|/ghost/', weight: 45 }
+      - { type: html, pattern: 'ghost-(content|portal)|data-ghost', weight: 40 }
+
+  - id: cms.arcxp
+    name: Arc XP
+    category: publishing_platform
+    interpretation: Public assets indicate technology associated with Arc XP / Arc Publishing.
+    false_positive_note: A publisher can use individual Arc services without using Arc as its entire CMS.
+    thresholds: { likely: 50, strong: 85 }
+    signals:
+      - { type: script_url, pattern: 'arcxp\.com|arcpublishing\.com|arc-publishing', weight: 60 }
+      - { type: html, pattern: 'arcxp|arcpublishing|arc-publishing', weight: 45 }
+
+  - id: paywall.piano
+    name: Piano
+    category: paywall
+    interpretation: Public scripts or cookies indicate Piano subscription or experience technology.
+    false_positive_note: Piano can be used for analytics or personalization without an active paywall on every page.
+    thresholds: { likely: 45, strong: 80 }
+    signals:
+      - { type: script_url, pattern: 'tinypass\.com|piano\.io', weight: 60 }
+      - { type: request_domain, pattern: '(^|\.)tinypass\.com$|(^|\.)piano\.io$', weight: 45 }
+      - { type: cookie_name, pattern: '^__tac|^tp_|piano', weight: 30 }
+
+  - id: paywall.zephr
+    name: Zephr
+    category: paywall
+    interpretation: Public assets indicate Zephr subscription or personalization technology.
+    false_positive_note: Zephr scripts can be loaded before a paywall decision is made.
+    thresholds: { likely: 45, strong: 80 }
+    signals:
+      - { type: script_url, pattern: 'zephr\.com|zephr-browser', weight: 65 }
+      - { type: request_domain, pattern: '(^|\.)zephr\.com$', weight: 45 }
+      - { type: html, pattern: 'zephr-browser|data-zephr', weight: 35 }
+
+  - id: analytics.gtm
+    name: Google Tag Manager
+    category: analytics
+    interpretation: Google Tag Manager is loaded or referenced.
+    false_positive_note: A container can manage many unrelated tags; shared use does not prove common ownership.
+    thresholds: { likely: 40, strong: 75 }
+    signals:
+      - { type: script_url, pattern: 'googletagmanager\.com/(gtm|ns)\.js', weight: 55 }
+      - { type: html, pattern: 'GTM-[A-Z0-9]+', capture: '(GTM-[A-Z0-9]+)', weight: 45 }
+
+  - id: analytics.google
+    name: Google Analytics
+    category: analytics
+    interpretation: Google Analytics is loaded or referenced.
+    false_positive_note: A measurement ID is an account-level clue, not proof of ownership.
+    thresholds: { likely: 40, strong: 75 }
+    signals:
+      - { type: script_url, pattern: 'google-analytics\.com|googletagmanager\.com/gtag/js', weight: 55 }
+      - { type: html, pattern: '(?:G-[A-Z0-9]{6,}|UA-[0-9]+-[0-9]+)', capture: '((?:G-[A-Z0-9]{6,}|UA-[0-9]+-[0-9]+))', weight: 45 }
+
+  - id: analytics.snowplow
+    name: Snowplow
+    category: analytics
+    interpretation: Public assets indicate Snowplow analytics.
+    false_positive_note: The word snowplow can occur in unrelated content; script or request evidence is stronger.
+    thresholds: { likely: 45, strong: 80 }
+    signals:
+      - { type: script_url, pattern: 'snowplow|sp\.js', weight: 55 }
+      - { type: request_domain, pattern: 'snowplow', weight: 45 }
+      - { type: html, pattern: 'newTracker\(|snowplow\(', weight: 50 }
+
+  - id: analytics.matomo
+    name: Matomo
+    category: analytics
+    interpretation: Public assets indicate Matomo or legacy Piwik analytics.
+    false_positive_note: Old references can remain after migration.
+    thresholds: { likely: 45, strong: 80 }
+    signals:
+      - { type: script_url, pattern: 'matomo\.js|piwik\.js', weight: 60 }
+      - { type: html, pattern: '_paq\.push|Matomo', weight: 45 }
+
+  - id: consent.onetrust
+    name: OneTrust
+    category: consent
+    interpretation: Public assets indicate OneTrust consent management.
+    false_positive_note: A script can be present while another interface is shown in some regions.
+    thresholds: { likely: 45, strong: 80 }
+    signals:
+      - { type: script_url, pattern: 'cdn\.cookielaw\.org|onetrust\.com', weight: 65 }
+      - { type: cookie_name, pattern: 'OptanonConsent|OptanonAlertBoxClosed', weight: 45 }
+
+  - id: consent.didomi
+    name: Didomi
+    category: consent
+    interpretation: Public assets indicate Didomi consent management.
+    false_positive_note: Regional loading can make results vary by scan location.
+    thresholds: { likely: 45, strong: 80 }
+    signals:
+      - { type: script_url, pattern: 'didomi\.io|privacy-center\.org', weight: 65 }
+      - { type: cookie_name, pattern: 'didomi', weight: 40 }
+
+  - id: consent.sourcepoint
+    name: Sourcepoint
+    category: consent
+    interpretation: Public assets indicate Sourcepoint consent management.
+    false_positive_note: Regional loading can make results vary by scan location.
+    thresholds: { likely: 45, strong: 80 }
+    signals:
+      - { type: script_url, pattern: 'privacy-mgmt\.com', weight: 65 }
+      - { type: request_domain, pattern: '(^|\.)privacy-mgmt\.com$', weight: 45 }
+
+  - id: consent.cookiebot
+    name: Cookiebot
+    category: consent
+    interpretation: Public assets indicate Cookiebot consent management.
+    false_positive_note: A dormant script can remain after a provider change.
+    thresholds: { likely: 45, strong: 80 }
+    signals:
+      - { type: script_url, pattern: 'consent\.cookiebot\.com', weight: 65 }
+      - { type: cookie_name, pattern: 'CookieConsent', weight: 40 }
+
+  - id: advertising.google_gpt
+    name: Google Publisher Tag
+    category: advertising
+    interpretation: Google Publisher Tag is loaded or referenced.
+    false_positive_note: This identifies ad-serving technology, not a specific commercial relationship.
+    thresholds: { likely: 45, strong: 80 }
+    signals:
+      - { type: script_url, pattern: 'securepubads\.g\.doubleclick\.net/tag/js/gpt\.js|googletagservices\.com/tag/js/gpt\.js', weight: 70 }
+      - { type: html, pattern: 'googletag\.defineSlot|googletag\.cmd', weight: 45 }
+
+  - id: advertising.prebid
+    name: Prebid.js
+    category: advertising
+    interpretation: Public assets indicate client-side Prebid header bidding.
+    false_positive_note: A bundled library can be present without active auctions on every page.
+    thresholds: { likely: 45, strong: 80 }
+    signals:
+      - { type: script_url, pattern: 'prebid(?:\.min)?\.js', weight: 65 }
+      - { type: html, pattern: 'pbjs\.que|pbjs\.requestBids', weight: 50 }
+
+  - id: infrastructure.cloudflare
+    name: Cloudflare
+    category: infrastructure
+    interpretation: Response headers or assets indicate Cloudflare edge services.
+    false_positive_note: Cloudflare use does not imply common ownership between sites.
+    thresholds: { likely: 45, strong: 80 }
+    signals:
+      - { type: header, pattern: '^server:\s*cloudflare$', weight: 65 }
+      - { type: header, pattern: '^cf-ray:', weight: 60 }
+      - { type: script_url, pattern: 'cdnjs\.cloudflare\.com', weight: 20 }

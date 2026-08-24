@@ -1,0 +1,9 @@
+targets:
+  - id: "01EXAMPLE000000000000000001"
+    name: "Example Publisher"
+    url: "https://example.com"
+    enabled: true
+    profile: "publisher"
+    groups: ["example"]
+    scan_mode: "quick"
+    private_notes: "Private runtime note; never copy into the public repository."

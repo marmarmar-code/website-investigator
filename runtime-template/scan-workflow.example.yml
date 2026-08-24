@@ -1,0 +1,58 @@
+name: Private website monitoring
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: website-investigator-runtime
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Refuse to run outside a private repository
+        env:
+          REPOSITORY_VISIBILITY: ${{ github.event.repository.visibility }}
+        run: |
+          test "$REPOSITORY_VISIBILITY" = "private" || {
+            echo "Runtime repository must remain private" >&2
+            exit 1
+          }
+
+      - name: Check out private runtime
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Run pinned public engine
+        env:
+          WI_APPRISE_URLS: ${{ secrets.WI_APPRISE_URLS }}
+          WI_REDACT_LOGS: "1"
+        run: |
+          IMAGE=$(awk -F'"' '/^[[:space:]]*image:/ {print $2}' engine.lock)
+          DIGEST=$(awk -F'"' '/^[[:space:]]*digest:/ {print $2}' engine.lock)
+          test -n "$IMAGE" && test -n "$DIGEST"
+          [[ "$DIGEST" =~ ^sha256:[0-9a-f]{64}$ ]]
+          docker pull "$IMAGE@$DIGEST"
+          docker run --rm \
+            --user "$(id -u):$(id -g)" \
+            -e HOME=/tmp \
+            -e WI_APPRISE_URLS \
+            -e WI_REDACT_LOGS \
+            -v "$GITHUB_WORKSPACE:/runtime" \
+            "$IMAGE@$DIGEST" monitor --runtime /runtime
+
+      - name: Persist private observations and events
+        run: |
+          if git diff --quiet && git diff --cached --quiet && [ -z "$(git status --porcelain)" ]; then
+            echo "No runtime changes"
+            exit 0
+          fi
+          git config user.name "website-investigator[bot]"
+          git config user.email "website-investigator[bot]@users.noreply.github.com"
+          git add data notifications reports
+          git commit -m "Update private website observations"
+          git push

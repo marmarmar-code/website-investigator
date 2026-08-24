@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ display_name or observation.host or 'Website Investigator' }}</title>
+  <style>
+    :root { color-scheme: light; --bg:#f4f5f7; --panel:#fff; --ink:#17191c; --muted:#667085; --line:#dfe3e8; --accent:#274690; --high:#8a1c1c; --med:#8a5a00; --ok:#12643a; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.5 ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    main { max-width:1180px; margin:0 auto; padding:32px 20px 80px; }
+    header { display:flex; justify-content:space-between; align-items:flex-start; gap:24px; margin-bottom:24px; }
+    h1 { font-size:32px; line-height:1.15; margin:0 0 8px; }
+    h2 { font-size:20px; margin:0 0 14px; }
+    h3 { font-size:16px; margin:0 0 8px; }
+    p { margin:0 0 10px; }
+    a { color:var(--accent); overflow-wrap:anywhere; }
+    .muted { color:var(--muted); }
+    .pill { display:inline-block; border:1px solid var(--line); border-radius:999px; padding:4px 9px; font-size:12px; background:#fff; }
+    .status-success { color:var(--ok); border-color:#a8d8bd; }
+    .status-partial { color:var(--med); border-color:#e6cf9a; }
+    .status-failed { color:var(--high); border-color:#e5b2b2; }
+    .grid { display:grid; grid-template-columns:repeat(12,1fr); gap:16px; margin-bottom:16px; }
+    .panel { grid-column:span 12; background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px; box-shadow:0 1px 2px rgba(0,0,0,.03); }
+    .half { grid-column:span 6; }
+    .third { grid-column:span 4; }
+    .metric { font-size:24px; font-weight:700; }
+    table { width:100%; border-collapse:collapse; }
+    th,td { padding:9px 8px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }
+    th { color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.04em; }
+    code { font:12px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace; background:#f2f4f7; padding:2px 5px; border-radius:4px; overflow-wrap:anywhere; }
+    pre { white-space:pre-wrap; overflow-wrap:anywhere; background:#111827; color:#e5e7eb; padding:16px; border-radius:8px; max-height:600px; overflow:auto; font-size:12px; }
+    details { border-top:1px solid var(--line); padding-top:10px; margin-top:10px; }
+    summary { cursor:pointer; font-weight:600; }
+    .finding { border-left:4px solid var(--line); padding:12px 14px; margin:10px 0; background:#fafbfc; border-radius:6px; }
+    .finding.strong { border-left-color:var(--ok); }
+    .finding.likely { border-left-color:var(--med); }
+    .event { border-left:4px solid var(--line); padding:10px 12px; margin:8px 0; background:#fafbfc; }
+    .event.high { border-left-color:var(--high); }
+    .event.medium { border-left-color:var(--med); }
+    ul.compact { margin:6px 0 0; padding-left:20px; }
+    .wrap { overflow-wrap:anywhere; }
+    @media (max-width:800px) { .half,.third { grid-column:span 12; } header { display:block; } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div>
+      <p class="muted">Website Investigator dossier</p>
+      <h1>{{ display_name or observation.host or observation.requested_url }}</h1>
+      <p><a href="{{ observation.final_url or observation.requested_url }}">{{ observation.final_url or observation.requested_url }}</a></p>
+    </div>
+    <div>
+      <span class="pill status-{{ observation.status }}">{{ observation.status }}</span>
+      <span class="pill">{{ observation.scan_mode }} scan</span>
+      <span class="pill">method {{ observation.methodology_version }}</span>
+    </div>
+  </header>
+
+  <section class="grid">
+    <div class="panel third"><p class="muted">Findings</p><div class="metric">{{ observation.findings|length }}</div></div>
+    <div class="panel third"><p class="muted">Third-party domains</p><div class="metric">{{ observation.third_party_domains|length }}</div></div>
+    <div class="panel third"><p class="muted">Completed</p><div>{{ observation.completed_at or '—' }}</div></div>
+  </section>
+
+  {% if events %}
+  <section class="grid"><div class="panel">
+    <h2>Changes first observed</h2>
+    <p class="muted">Observation time is not proof of the exact change time.</p>
+    {% for event in events %}
+      <div class="event {{ event.severity }}">
+        <strong>{{ event.summary }}</strong>
+        <div class="muted">{{ event.category }} · {{ event.severity }} · {{ event.event_type }}</div>
+      </div>
+    {% endfor %}
+  </div></section>
+  {% endif %}
+
+  <section class="grid">
+    <div class="panel">
+      <h2>Detected technology</h2>
+      {% if observation.findings %}
+        {% for category, findings in observation.findings|groupby('category') %}
+          <h3>{{ category|replace('_', ' ')|title }}</h3>
+          {% for finding in findings %}
+            <article class="finding {{ finding.confidence }}">
+              <div><strong>{{ finding.name }}</strong> <span class="pill">{{ finding.confidence }} · {{ finding.score }}</span></div>
+              {% if finding.interpretation %}<p>{{ finding.interpretation }}</p>{% endif %}
+              {% if finding.identifiers %}<p><strong>Public identifiers:</strong> {{ finding.identifiers|join(', ') }}</p>{% endif %}
+              <details><summary>Evidence ({{ finding.evidence|length }})</summary>
+                <ul class="compact">
+                {% for evidence in finding.evidence %}
+                  <li><code>{{ evidence.kind }}</code> {{ evidence.source }} — <code>{{ evidence.value }}</code></li>
+                {% endfor %}
+                </ul>
+                {% if finding.false_positive_note %}<p class="muted"><strong>Limitation:</strong> {{ finding.false_positive_note }}</p>{% endif %}
+              </details>
+            </article>
+          {% endfor %}
+        {% endfor %}
+      {% else %}<p class="muted">No configured technology signal crossed the reporting threshold.</p>{% endif %}
+    </div>
+  </section>
+
+  <section class="grid">
+    <div class="panel half">
+      <h2>Crawler policy</h2>
+      {% if observation.robots_policies %}
+      <table><thead><tr><th>User agent</th><th>Root</th><th>Explicit</th></tr></thead><tbody>
+      {% for policy in observation.robots_policies %}
+        <tr><td>{{ policy.user_agent }}</td><td>{% if policy.allowed_at_root is sameas true %}Allowed{% elif policy.allowed_at_root is sameas false %}Blocked{% else %}Unknown{% endif %}</td><td>{{ 'Yes' if policy.explicit_group else 'No' }}</td></tr>
+      {% endfor %}
+      </tbody></table>
+      {% else %}<p class="muted">No usable robots.txt policy was observed.</p>{% endif %}
+    </div>
+    <div class="panel half">
+      <h2>Publishing metadata</h2>
+      <table><tbody>
+        <tr><th>Title</th><td>{{ observation.metadata.title or '—' }}</td></tr>
+        <tr><th>Generator</th><td>{{ observation.metadata.generator or '—' }}</td></tr>
+        <tr><th>Canonical</th><td class="wrap">{{ observation.metadata.canonical_url or '—' }}</td></tr>
+        <tr><th>Feeds</th><td>{{ observation.metadata.feeds|length }}</td></tr>
+        <tr><th>Sitemaps</th><td>{{ observation.metadata.sitemaps|length }}</td></tr>
+        <tr><th>Manifest</th><td class="wrap">{{ observation.metadata.manifest or '—' }}</td></tr>
+      </tbody></table>
+    </div>
+  </section>
+
+  <section class="grid">
+    <div class="panel half">
+      <h2>DNS</h2>
+      {% if observation.dns %}
+        {% for kind, values in observation.dns.items() %}
+          <h3>{{ kind }}</h3><ul class="compact">{% for value in values %}<li><code>{{ value }}</code></li>{% endfor %}</ul>
+        {% endfor %}
+      {% else %}<p class="muted">No DNS records stored.</p>{% endif %}
+    </div>
+    <div class="panel half">
+      <h2>TLS</h2>
+      <table><tbody>
+        <tr><th>Available</th><td>{{ observation.tls.available }}</td></tr>
+        <tr><th>Issuer</th><td>{{ observation.tls.issuer or '—' }}</td></tr>
+        <tr><th>Valid until</th><td>{{ observation.tls.not_after or '—' }}</td></tr>
+        <tr><th>SAN entries</th><td>{{ observation.tls.san|length }}</td></tr>
+        <tr><th>Fingerprint</th><td class="wrap"><code>{{ observation.tls.sha256_fingerprint or '—' }}</code></td></tr>
+      </tbody></table>
+    </div>
+  </section>
+
+  <section class="grid">
+    <div class="panel half">
+      <h2>Standard endpoints</h2>
+      <table><thead><tr><th>Endpoint</th><th>Status</th><th>Hash</th></tr></thead><tbody>
+      {% for name, fetch in observation.fetches.items() %}
+        <tr><td>{{ name }}</td><td>{{ fetch.status_code or '—' }}{% if fetch.error %}<br><span class="muted">{{ fetch.error }}</span>{% endif %}</td><td><code>{{ (fetch.sha256 or '—')[:16] }}</code></td></tr>
+      {% endfor %}
+      </tbody></table>
+    </div>
+    <div class="panel half">
+      <h2>Third-party domains</h2>
+      {% if observation.third_party_domains %}<ul class="compact">{% for domain in observation.third_party_domains %}<li><code>{{ domain }}</code></li>{% endfor %}</ul>{% else %}<p class="muted">None observed in this scan mode.</p>{% endif %}
+    </div>
+  </section>
+
+  {% if observation.errors %}
+  <section class="grid"><div class="panel"><h2>Limits and errors</h2><ul>{% for error in observation.errors %}<li>{{ error }}</li>{% endfor %}</ul></div></section>
+  {% endif %}
+
+  <section class="grid"><div class="panel"><details><summary>Raw normalized observation</summary><pre>{{ raw_json }}</pre></details></div></section>
+</main>
+</body>
+</html>

@@ -1,0 +1,5 @@
+engine:
+  image: "ghcr.io/marmarmar-code/website-investigator"
+  version: "0.1.0"
+  digest: "sha256:REPLACE_WITH_PUBLISHED_IMAGE_DIGEST"
+  schema_version: 1

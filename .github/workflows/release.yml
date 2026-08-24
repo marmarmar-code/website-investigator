@@ -1,0 +1,51 @@
+name: Release container
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+  attestations: write
+
+jobs:
+  container:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # pinned v4 major tag snapshot
+      - name: Derive image coordinates
+        id: image
+        shell: bash
+        run: |
+          IMAGE="ghcr.io/${ github.repository }"
+          IMAGE="${IMAGE,,}"
+          VERSION="${ github.ref_name }"
+          echo "image=$IMAGE" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+      - name: Authenticate to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+      - name: Build and push
+        id: push
+        shell: bash
+        run: |
+          docker buildx build \
+            --push \
+            --metadata-file /tmp/image-metadata.json \
+            --label "org.opencontainers.image.source=https://github.com/${{ github.repository }}" \
+            --label "org.opencontainers.image.revision=${{ github.sha }}" \
+            --label "org.opencontainers.image.licenses=Apache-2.0" \
+            --tag "${{ steps.image.outputs.image }}:${{ steps.image.outputs.version }}" .
+          DIGEST=$(jq -r '."containerimage.digest"' /tmp/image-metadata.json)
+          [[ "$DIGEST" =~ ^sha256:[0-9a-f]{64}$ ]]
+          echo "digest=$DIGEST" >> "$GITHUB_OUTPUT"
+          echo "Runtime pin: ${{ steps.image.outputs.image }}@$DIGEST" >> "$GITHUB_STEP_SUMMARY"
+      - name: Attest container provenance
+        uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be
+        with:
+          subject-name: ${{ steps.image.outputs.image }}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
