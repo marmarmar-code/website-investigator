@@ -51,7 +51,6 @@ Ingen hemmelige verdier skal ligge i filer, Git-historikk, Actions-inndata eller
 Kvitteringen vises privat med én gang. Resultatet og den fullstendige HTML-rapporten
 kommer som en direktemelding fra Website Investigator.
 
-Rapporten begynner med en norsk journalistisk oppsummering. Den forklarer funn,
-sikkerhetsnivå og viktige forbehold, og viser annonserklæringer, sikkerhetskontakt og
-organisasjonsopplysninger når nettstedet publiserer dette. Tekniske rådata ligger i et
-sammenleggbart vedlegg nederst.
+Rapporten viser først eksterne tjenester og om kjente crawlere er tillatt eller blokkert.
+Teknologi, annonsering og publiseringsdata følger i korte seksjoner. Tekniske rådata ligger
+i et sammenleggbart vedlegg nederst.

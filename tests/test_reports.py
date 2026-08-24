@@ -1,6 +1,6 @@
 from datetime import UTC, datetime
 
-from website_investigator.models import AdsEntry, Finding, Observation
+from website_investigator.models import AdsEntry, Finding, Observation, RobotsPolicy
 from website_investigator.reports import render_observation
 
 
@@ -19,9 +19,9 @@ def test_standalone_report_renders():
     assert 'lang="no"' in html
     assert "Website Investigator" in html
     assert "example.com" in html
-    assert "Kort fortalt" in html
-    assert "Journalistisk oversikt" in html
-    assert "Teknisk dokumentasjon og rådata" in html
+    assert "Eksterne tjenester" in html
+    assert "Crawlere: tillatt eller blokkert" in html
+    assert "Teknisk vedlegg" in html
 
 
 def test_report_explains_findings_and_public_standard_files():
@@ -34,6 +34,15 @@ def test_report_explains_findings_and_public_standard_files():
         host="example.com",
         status="success",
         completed_at=datetime.now(UTC),
+        third_party_domains=["service.example"],
+        robots_policies=[
+            RobotsPolicy(
+                user_agent="ExampleBot",
+                allowed_at_root=False,
+                explicit_group=True,
+                directives=["Disallow: /"],
+            )
+        ],
         findings=[
             Finding(
                 id="analytics.example",
@@ -74,9 +83,11 @@ def test_report_explains_findings_and_public_standard_files():
 
     html = render_observation(observation)
 
+    assert "service.example" in html
+    assert "ExampleBot" in html
+    assert "Blokkert" in html
     assert "Måling og analyse" in html
     assert "høy sikkerhet" in html
-    assert "Eksempelavisen" in html
     assert "1 oppføring fra 1 selgerdomene" in html
-    assert "Se selgerdomenene" in html
-    assert "mailto:security@example.com" in html
+    assert "Selgerdomener" in html
+    assert "Sikkerhetskontakter</th><td>1" in html

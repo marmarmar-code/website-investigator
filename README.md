@@ -78,9 +78,9 @@ The receiver stores no targets or reports, detailed Worker logging is disabled, 
 workflow publishes no artifacts. Slack, GitHub and encryption credentials are stored only in their
 respective secret stores. See [Slack setup](docs/SLACK_SETUP.md).
 
-The private HTML report is Norwegian and answer-first: it explains the most important findings,
-confidence and limitations before placing DNS, TLS, endpoint details and normalized data in a
-collapsed technical appendix.
+The private HTML report puts third-party services and crawler permissions first. Technology,
+advertising and publishing data follow in compact sections, while DNS, TLS, endpoint details and
+normalized data remain in a collapsed technical appendix.
 
 ## Privacy and source handling
 
