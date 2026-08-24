@@ -1,10 +1,10 @@
 # Build status
 
-Generated: 2026-08-24T11:56:43Z
+Generated: 2026-08-24T12:05:46Z
 
-**Public release status: v0.1.0 PUBLISHED; v0.2.0 SLACK UPDATE LOCALLY VALIDATED, NOT YET PUBLISHED**
+**Public release status: v0.2.0 PUBLISHED AND ANONYMOUSLY RETRIEVABLE**
 
-**Private runtime status: MANUAL WORKFLOW VALIDATED; SLACK CONFIG PRESENT BUT NOT ACTIVATED**
+**Private runtime status: PINNED TO v0.2.0; SLACK CONFIG PRESENT BUT NOT ACTIVATED**
 
 ## Local validation
 
@@ -62,10 +62,11 @@ Controlled tests also passed for semantic change creation, failed-scan preservat
 |---|---|
 | Public repository visibility | PASS: public |
 | Private runtime repository visibility | PASS: private |
-| Public CI for current runtime workflow code | PASS: run `32719889130` |
-| Release `v0.1.0` | PASS |
-| Container build and provenance attestation | PASS: run `32716595859` |
-| Public container digest | `sha256:6c254bc785090647f4bc5b693e779f8e8ae985251da53c659c2ca01d49454a16` |
+| Public CI for the v0.2.0 runtime code | PASS: run `32724524215` |
+| Tag CI for `v0.2.0` | PASS: run `32724602286` |
+| Release `v0.2.0` | PASS |
+| Container build and provenance attestation | PASS: run `32724602396` |
+| Public container digest | `sha256:617d6c1199517cb1c06bf28c367ad06c40065a017a56022f1030743a67379a9b` |
 | Private runtime lock | PASS: exact digest, never `latest` |
 | Private repository Actions workflows | PASS: none; the private repository is storage-only |
 | Public workflow access to private runtime | PASS: write-enabled deploy key restricted to the private runtime repository and stored only as `WI_RUNTIME_DEPLOY_KEY` |
@@ -79,7 +80,7 @@ The earlier private hosted-runner attempt is superseded. Runtime execution now b
 
 - No real monitoring targets are active; the temporary test target was removed after both manual runs.
 - No schedule is enabled; the public runtime workflow is manual-only.
-- No Slack or other notification credential is configured.
+- No Slack credential is configured yet.
 - The Slack bridge is implemented but disabled. No Slack app is installed, no background service is
   active, and no real Slack message or file receipt has been verified yet.
 - The private example baseline and report are retained as audit evidence and never copied into public Git history or artifacts.
