@@ -44,7 +44,7 @@ jobs:
           echo "digest=$DIGEST" >> "$GITHUB_OUTPUT"
           echo "Runtime pin: ${{ steps.image.outputs.image }}@$DIGEST" >> "$GITHUB_STEP_SUMMARY"
       - name: Attest container provenance
-        uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8
         with:
           subject-name: ${{ steps.image.outputs.image }}
           subject-digest: ${{ steps.push.outputs.digest }}
